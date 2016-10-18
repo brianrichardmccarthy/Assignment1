@@ -1,4 +1,4 @@
-package assignment1;
+package bruteForceAutoComplete;
 
 public interface AutoComplete {
 
