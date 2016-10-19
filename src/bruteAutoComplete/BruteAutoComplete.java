@@ -187,7 +187,7 @@ public class BruteAutoComplete implements AutoComplete {
 		 * Worst case: N (because the last word is the only match or arraylist contains no word with given prefix). Return the last Terms' weight or 0.0.
 		 * */
 		for (Term word : words)	{// Worst: N Best: 1.
-			if (word.getWord().equals(term)) {				// Worst: N Best: 1.
+			if (word.getWord().startsWith(term)) {				// Worst: N Best: 1.
 				System.out.println("Time taken to find weight: " + stopwatch.elapsedTime());
 				return word.getWeight();						// Worst: 0 Best: 1.
 			}
@@ -273,13 +273,13 @@ public class BruteAutoComplete implements AutoComplete {
 		Stopwatch stopwatch = new Stopwatch();
 		
 		for (Term word : words)									// Worst: N Best: K
-			if (matches.size() == k) {							// Worst: K Best: K
+			if (matches.size() == k) {							// Worst: N Best: K
 				System.out.println("Time taken to find top words: " + stopwatch.elapsedTime());
 				return matches;									// Worst: 0 Best: 1
 			}
 			else if (word.getWord().startsWith(prefix))			// Worst: N Best: K
 				matches.add(word.getWord());					// Worst: X < N && K  Best: K
-
+																// where x is the number of strings found.
 		System.out.println("Time taken to find top words: " + stopwatch.elapsedTime());
 		return matches;
 
