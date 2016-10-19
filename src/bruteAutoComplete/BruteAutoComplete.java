@@ -1,4 +1,4 @@
-package bruteForceAutoComplete;
+package bruteAutoComplete;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,8 +8,19 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
+import edu.princeton.cs.introcs.Stopwatch;
+
 /**
- * 
+ * This Class reads in a file from a given String in the Constructor.<br>
+ * Sort the content from the file by highest to lowest descending order of occurences.<br>
+ * Porvides three options.
+ * <ul>
+ * 	<li> Search a specified string for its occurence.</li>
+ * 	<li> Search for the best match (linear).</li>
+ * 	<li> Search for a list of prefixs (linear).</li>
+ * </ul>
+ * As outlined in the AutoComplete interface.
+ * @see AutoComplete
  * @author Brian
  *
  */
@@ -58,7 +69,10 @@ public class BruteAutoComplete implements AutoComplete {
 			inTerms.close();
 			throw new NullPointerException(file + " is empty.");
 		}
-
+		
+		// setup a stop watch for timing
+		Stopwatch stopwatch = new Stopwatch();
+		
 		/*
 		 * 1. Read in the next line of the file. 2. Split the line by weight and
 		 * word. 3. Add both to new Term class and add new Term class to
@@ -92,15 +106,19 @@ public class BruteAutoComplete implements AutoComplete {
 		// sort the arrayList
 		sort();
 
+		// print the time taken to read the file
+		System.out.println("Time taken to read in file: " + stopwatch.elapsedTime());
+		
 		// close the scanner
 		inTerms.close();
 
 	}
 
 	/**
-	 * Sort the arrayList
+	 * Sort the arrayList by weight, highest to lowest.
 	 */
 	private void sort() {
+		
 		// sort the arraylist by weight with the comparator interface
 		Collections.sort(words, new Comparator<Term>() {
 
@@ -110,6 +128,7 @@ public class BruteAutoComplete implements AutoComplete {
 			}
 
 		});
+		
 	}
 
 	/**
@@ -159,15 +178,22 @@ public class BruteAutoComplete implements AutoComplete {
 		// sort the arrayList
 		sort();
 
+		// setup a stop watch for timing
+		Stopwatch stopwatch = new Stopwatch();
+		
 		/*
 		 * linear search each value in the array list to see if starts with given prefix.
 		 * Best case: 1 (because the word in the first index starts with given prefix). Then return its weight.
 		 * Worst case: N (because the last word is the only match or arraylist contains no word with given prefix). Return the last Terms' weight or 0.0.
 		 * */
-		for (Term word : words)							// Worst: N Best: 1.
-			if (word.getWord().startsWith(term))		// Worst: N Best: 1.
-				return word.getWeight();				// Worst: 0 Best: 1.
-
+		for (Term word : words)	{// Worst: N Best: 1.
+			if (word.getWord().equals(term)) {				// Worst: N Best: 1.
+				System.out.println("Time taken to find weight: " + stopwatch.elapsedTime());
+				return word.getWeight();						// Worst: 0 Best: 1.
+			}
+		}
+		
+		System.out.println("Time taken to find weight: " + stopwatch.elapsedTime());
 		// return 0.0 if no String starts with the given prefix.
 		return 0.0;
 
@@ -189,15 +215,21 @@ public class BruteAutoComplete implements AutoComplete {
 		// sort the arrayList
 		sort();
 
+		// setup a stop watch for timing
+		Stopwatch stopwatch = new Stopwatch();
+		
 		/*
 		 * linear search each value in the array list to see if starts with given prefix and return the word with highest weight.
 		 * Best case: 1 (because the word in the first index starts with given prefix) and return first word of arraylist.
 		 * Worst case: N (because the last word is the only match or arraylist contains no word with given prefix) return last word in arraylist or return null.
 		 * */
-		for (Term word : words)						// Worst: N Best: 1.
-			if (word.getWord().startsWith(prefix))	// Worst: N Best: 1.
-				return word.getWord();				// Worst: 0 Best: 1.
+		for (Term word : words)									// Worst: N Best: 1.
+			if (word.getWord().startsWith(prefix)) {			// Worst: N Best: 1.
+				System.out.println("Time taken to find string: " + stopwatch.elapsedTime());
+				return word.getWord();							// Worst: 0 Best: 1.
+			}
 
+		System.out.println("Time taken to find string: " + stopwatch.elapsedTime());
 		// return null if no String starts with given prefix.
 		return null;
 
@@ -237,13 +269,18 @@ public class BruteAutoComplete implements AutoComplete {
 		// sort the arrayList
 		sort();
 
-		for (Term word : words)								// Worst: N Best: K
-			if (matches.size() == k)						// Worst: K Best: K
-				return matches;								// Worst: 0 Best: 1
-			else if (word.getWord().startsWith(prefix))		// Worst: N Best: K
-				matches.add(word.getWord());				// Worst: < N  Best: K
-
+		// setup a stop watch for timing
+		Stopwatch stopwatch = new Stopwatch();
 		
+		for (Term word : words)									// Worst: N Best: K
+			if (matches.size() == k) {							// Worst: K Best: K
+				System.out.println("Time taken to find top words: " + stopwatch.elapsedTime());
+				return matches;									// Worst: 0 Best: 1
+			}
+			else if (word.getWord().startsWith(prefix))			// Worst: N Best: K
+				matches.add(word.getWord());					// Worst: X < N && K  Best: K
+
+		System.out.println("Time taken to find top words: " + stopwatch.elapsedTime());
 		return matches;
 
 	}
