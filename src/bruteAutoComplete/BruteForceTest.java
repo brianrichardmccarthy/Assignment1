@@ -15,7 +15,11 @@ import org.junit.Test;
  * JUnit Test Case for BruteAutoComplete.<br>
  * Tests for:
  * <ul>
- * <li></li>
+ * <li>Test the size of array list to lines in specific file.</li>
+ * <li>Tests the methods and constructor for exceptions when invalid data is passed.</li>
+ * <li>Test for the weight of several words pick randomly from the start, middle, and end of the file.</li>
+ * <li>Test for the best matches of several prefixs or words pick randomly from the start, middle, and end of the file.</li>
+ * <li>Test for a list of words with a specific prefix and that an array list size is the same as the one specifed</li>
  * </ul>
  * 
  * @see BruteAutoComplete
