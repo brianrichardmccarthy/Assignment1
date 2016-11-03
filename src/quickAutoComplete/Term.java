@@ -6,7 +6,7 @@ package quickAutoComplete;
  * @author Brian
  *
  */
-public class Term  {
+public class Term implements Comparable<Term> {
 
 	private Double weight;
 	private String word;
@@ -41,7 +41,12 @@ public class Term  {
 	 * @return (String) "Weight: " + weight of the word + ", Word" + word;
 	 */
 	public String toString() {
-		return "Weight: " + weight + ", Word: " + word + ".\n";
+		return "Weight: " + weight + ", Word: " + word;
+	}
+
+	@Override
+	public int compareTo(Term arg0) {
+		return word.compareToIgnoreCase(arg0.getWord());
 	}
 	
 }
