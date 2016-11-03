@@ -5,11 +5,12 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.collect.Iterables;
 
 /**
  * JUnit Test Case for BruteAutoComplete.<br>
@@ -206,17 +207,17 @@ public class BruteForceTest {
 	 */
 	@Test
 	public void testMatches() {
-		ArrayList<String> temp = (ArrayList<String>) bruteAutoComplete.matches("the", 5);
-		assertTrue(temp.size() == 5);
+		Iterable<String> temp = bruteAutoComplete.matches("the", 7);
+		assertTrue(Iterables.size(temp) == 7);
+		
+		temp = bruteAutoComplete.matches("the", 10);
+		assertTrue(Iterables.size(temp) == 10);
+		
+		temp = bruteAutoComplete.matches("the", 15);
+		assertTrue(Iterables.size(temp) == 15);
 
-		temp = (ArrayList<String>) bruteAutoComplete.matches("the", 7);
-		assertTrue(temp.size() == 7);
-
-		temp = (ArrayList<String>) bruteAutoComplete.matches("the", 10);
-		assertTrue(temp.size() == 10);
-
-		temp = (ArrayList<String>) bruteAutoComplete.matches("the", 15);
-		assertTrue(temp.size() == 15);
+		temp = bruteAutoComplete.matches("the", 5);
+		assertTrue(Iterables.size(temp) == 5);
 	}
 
 	/**

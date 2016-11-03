@@ -28,6 +28,22 @@ public class BruteAutoComplete implements AutoComplete {
 
 	private List<Term> words;
 
+	/*
+	 * /**
+	 * Add the word and weight to the arraylist.<br>
+	 * Or throw Illegal Argument Exception.
+	 * 
+	 * @param termSplit
+	 *            (String[])
+	 * @param index
+	 *            (int) 1 or 0
+	 * @throws IllegalArgumentException
+	 *             If the weight of the word is less than or equal to zero. Or
+	 *             the word is repeated.
+	 *
+	 * 
+	 * */
+	
 	/**
 	 * 1. Reads in a file from a given String.<br>
 	 * 2. For each line in the file split the weight of the word and the
@@ -86,20 +102,31 @@ public class BruteAutoComplete implements AutoComplete {
 			// split the termString with the delims.
 			String[] termSplit = termString.split(delims);
 
-			/*
-			 * This if statement checks for Byte order mark. Prevents an
-			 * exception being thrown
-			 */
-			/*
-			 * if (termSplit[0].equals("﻿")) // termSplit[1] == number,
-			 * termSplit[2] == word addWord(termSplit, 1); else // termSplit[0]
-			 * == number, termSplit[1] == word addWord(termSplit, 0);
-			 */
-
 			// check that the first index does not contain a byte order mark,
 			// if the array does the set index to 1,
 			// else set the index to 0.
-			addWord(termSplit, (termSplit[0].equals("﻿")) ? 1 : 0);
+			if (termSplit.length < 2)
+				continue;
+
+
+			// check the index is less than or equal to zero, 
+			// if true throws Illegal Argument Exception.
+			if (Double.parseDouble(termSplit[0]) <= 0) {
+				inTerms.close();
+				throw new IllegalArgumentException("Weight of word cannot be less than or equal to zero.");
+			}
+				
+
+			// check that the word is not already in the array list,
+			// if it is then throws Illegal Argument Exception.
+			for (Term word : words)
+				if (word.getWord().equals(termSplit[1])) {
+					inTerms.close();
+					throw new IllegalArgumentException("Duplicate word.");
+				}
+
+			// create new instance of Term with the weight and word then add new Term to array list
+			words.add(new Term(Double.parseDouble(termSplit[0]), termSplit[1]));
 
 		}
 
@@ -129,37 +156,6 @@ public class BruteAutoComplete implements AutoComplete {
 
 		});
 		
-	}
-
-	/**
-	 * Add the word and weight to the arraylist.<br>
-	 * Or throw Illegal Argument Exception.
-	 * 
-	 * @param termSplit
-	 *            (String[])
-	 * @param index
-	 *            (int) 1 or 0
-	 * @throws IllegalArgumentException
-	 *             If the weight of the word is less than or equal to zero. Or
-	 *             the word is repeated.
-	 */
-	private void addWord(String[] termSplit, int index) throws IllegalArgumentException {
-
-		// check the index is less than or equal to zero, 
-		// if true throws Illegal Argument Exception.
-		if (Double.parseDouble(termSplit[index]) <= 0)
-			throw new IllegalArgumentException("Weight of word cannot be less than or equal to zero.");
-
-		// check that the word is not already in the array list,
-		// if it is then throws Illegal Argument Exception.
-		for (Term word : words)
-			if (word.getWord().equals(termSplit[index + 1]))
-				throw new IllegalArgumentException("Duplicate word.");
-
-		// create new instance of Term with the weight and word then add new Term to array list
-		words.add(new Term(Double.parseDouble(termSplit[index]), termSplit[index + 1]));
-											  // weight			 // word
-
 	}
 
 	/**
