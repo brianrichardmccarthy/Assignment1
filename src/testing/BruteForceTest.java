@@ -1,15 +1,18 @@
-package quickAutoComplete;
+package testing;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.collect.Iterables;
+
+import bruteAutoComplete.BruteAutoComplete;
 
 /**
  * JUnit Test Case for BruteAutoComplete.<br>
@@ -22,13 +25,13 @@ import org.junit.Test;
  * <li>Test for a list of words with a specific prefix and that an array list size is the same as the one specifed</li>
  * </ul>
  * 
- * @see QuickAutoComplete
+ * @see BruteAutoComplete
  * @author Brian
  *
  */
-public class QuickForceTest {
+public class BruteForceTest {
 
-	private QuickAutoComplete bruteAutoComplete;
+	private BruteAutoComplete bruteAutoComplete;
 
 	/**
 	 * Setup the main instance of brute auto complete.<br>
@@ -38,7 +41,7 @@ public class QuickForceTest {
 	@Before
 	public void setup() {
 		try {
-			bruteAutoComplete = new QuickAutoComplete(".\\TextFile\\wiktionary.txt");
+			bruteAutoComplete = new BruteAutoComplete(".\\TextFile\\wiktionary.txt");
 		} catch (IllegalArgumentException | FileNotFoundException | NullPointerException e) {
 			fail();
 		}
@@ -67,7 +70,7 @@ public class QuickForceTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void testIllegalArgumentException()
 			throws IllegalArgumentException, FileNotFoundException, NullPointerException {
-		new QuickAutoComplete(".\\TextFile\\wiktionary2.txt");
+		new BruteAutoComplete(".\\TextFile\\wiktionary2.txt");
 	}
 
 	/**
@@ -83,7 +86,7 @@ public class QuickForceTest {
 	@Test(expected = FileNotFoundException.class)
 	public void testFileNotFoundException()
 			throws IllegalArgumentException, FileNotFoundException, NullPointerException {
-		new QuickAutoComplete("");
+		new BruteAutoComplete("");
 	}
 
 	/**
@@ -100,7 +103,7 @@ public class QuickForceTest {
 	@Test(expected = NullPointerException.class)
 	public void testNullPointerException()
 			throws IllegalArgumentException, FileNotFoundException, NullPointerException {
-		new QuickAutoComplete(".\\TextFile\\wiktionary3.txt");
+		new BruteAutoComplete(".\\TextFile\\wiktionary3.txt");
 	}
 
 	/**
@@ -116,7 +119,7 @@ public class QuickForceTest {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void testDuplicates() throws IllegalArgumentException, FileNotFoundException, NullPointerException {
-		new QuickAutoComplete(".\\TextFile\\wiktionary4.txt");
+		new BruteAutoComplete(".\\TextFile\\wiktionary4.txt");
 	}
 
 	/**
@@ -206,17 +209,20 @@ public class QuickForceTest {
 	 */
 	@Test
 	public void testMatches() {
-		ArrayList<String> temp = (ArrayList<String>) bruteAutoComplete.matches("the", 5);
-		assertTrue(temp.size() == 5);
+		Iterable<String> temp = bruteAutoComplete.matches("the", 7);
+		assertTrue(Iterables.size(temp) == 7);
+		
+		temp = bruteAutoComplete.matches("the", 10);
+		assertTrue(Iterables.size(temp) == 10);
+		
+		temp = bruteAutoComplete.matches("the", 15);
+		assertTrue(Iterables.size(temp) == 15);
 
-		temp = (ArrayList<String>) bruteAutoComplete.matches("the", 7);
-		assertTrue(temp.size() == 7);
-
-		temp = (ArrayList<String>) bruteAutoComplete.matches("the", 10);
-		assertTrue(temp.size() == 10);
-
-		temp = (ArrayList<String>) bruteAutoComplete.matches("the", 15);
-		assertTrue(temp.size() == 15);
+		temp = bruteAutoComplete.matches("the", 5);
+		assertTrue(Iterables.size(temp) == 5);
+		
+		temp = bruteAutoComplete.matches("xyz", 5);
+		assertTrue(Iterables.size(temp) == 0);
 	}
 
 	/**
