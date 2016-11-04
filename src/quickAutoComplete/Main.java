@@ -6,7 +6,7 @@ import java.util.Scanner;
 public class Main {
 
 	private Scanner stringInput;
-	private static QuickAutoComplete bruteAutoComplete;
+	private QuickAutoComplete quickAutoComplete;
 
 	public static void main(String[] args) {
 		new Main();
@@ -21,7 +21,7 @@ public class Main {
 		stringInput = new Scanner(System.in);
 		System.out.print("Enter path to file: ");
 		try {
-			bruteAutoComplete = new QuickAutoComplete(getStringInput());
+			quickAutoComplete = new QuickAutoComplete(getStringInput());
 			menu();
 		} catch (IllegalArgumentException | FileNotFoundException | NullPointerException e) {
 			e.printStackTrace();
@@ -93,7 +93,7 @@ public class Main {
 		try {
 			System.out.print("\nEnter prefix or word to be searched: ");
 			String temp = getStringInput();
-			System.out.println("String: " + temp +", Weight: "+ bruteAutoComplete.weightOf(temp));
+			System.out.println("String: " + temp +", Weight: "+ quickAutoComplete.weightOf(temp));
 		} catch (NullPointerException e) {
 			System.out.println(e.getMessage());
 		}
@@ -105,7 +105,7 @@ public class Main {
 	private void searchBestMatch() {
 		try {
 			System.out.print("\nEnter prefix or word to be searched: ");
-			System.out.println(bruteAutoComplete.bestMatch(getStringInput()));
+			System.out.println(quickAutoComplete.bestMatch(getStringInput()));
 		} catch (NullPointerException e) {
 			System.out.println(e.getMessage());
 		}
@@ -120,7 +120,7 @@ public class Main {
 			System.out.print("\nEnter prefix or word to be searched: ");
 			String prefix = getStringInput();
 			System.out.print("\nEnter the number (Int) of words to print: ");
-			System.out.println(bruteAutoComplete.matches(prefix, getInput()));
+			System.out.println(quickAutoComplete.matches(prefix, getInput()));
 		} catch (IllegalArgumentException | NullPointerException e) {
 			System.out.println(e.getMessage());
 		}
