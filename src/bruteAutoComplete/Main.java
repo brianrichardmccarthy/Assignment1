@@ -38,7 +38,7 @@ public class Main {
 
 		do {
 
-			System.out.println("\nBrute Force Auto Complete");
+			System.out.println("\nQuick Auto Complete");
 			System.out.println("-------------------------\n");
 
 			System.out.println("1) Get the Weight of a word.");
