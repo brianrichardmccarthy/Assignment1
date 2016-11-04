@@ -106,7 +106,7 @@ public class QuickAutoComplete implements AutoComplete {
 			 * Check if array list is empty, if true add the current contents of the termSplit array to the first index.
 			 * */
 			if (words.isEmpty())
-				words.add(new Term(Double.parseDouble(termSplit[0]), termSplit[1]));
+				words.add(new Term(tempWeight, termSplit[1]));
 			/*
 			 * Else sort the array list by it's word.
 			 * Then do a bnary search. If the binary search is less than 0 add the term to the array list.
@@ -172,7 +172,7 @@ public class QuickAutoComplete implements AutoComplete {
 		return new Comparator<Term>() {
 
 			public int compare(Term word1, Term word2) {
-				if (word1.getWord().startsWith(word2.getWord()) || word1.getWord().equals(word2.getWord()))
+				if (word1.getWord().startsWith(word2.getWord()))
 					return 0;
 				return word1.getWord().compareToIgnoreCase(word2.getWord());
 			}
