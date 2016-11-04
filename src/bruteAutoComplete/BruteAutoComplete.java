@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Scanner;
 
 import edu.princeton.cs.introcs.Stopwatch;
+import term.Term;
+import interfaces.AutoComplete;
 
 /**
  * This Class reads in a file from a given String in the Constructor.<br>
@@ -28,22 +30,6 @@ public class BruteAutoComplete implements AutoComplete {
 
 	private List<Term> words;
 
-	/*
-	 * /**
-	 * Add the word and weight to the arraylist.<br>
-	 * Or throw Illegal Argument Exception.
-	 * 
-	 * @param termSplit
-	 *            (String[])
-	 * @param index
-	 *            (int) 1 or 0
-	 * @throws IllegalArgumentException
-	 *             If the weight of the word is less than or equal to zero. Or
-	 *             the word is repeated.
-	 *
-	 * 
-	 * */
-	
 	/**
 	 * 1. Reads in a file from a given String.<br>
 	 * 2. For each line in the file split the weight of the word and the
@@ -102,16 +88,15 @@ public class BruteAutoComplete implements AutoComplete {
 			// split the termString with the delims.
 			String[] termSplit = termString.split(delims);
 
-			// check that the first index does not contain a byte order mark,
-			// if the array does the set index to 1,
-			// else set the index to 0.
+			// check if the array does not contain weight and word
 			if (termSplit.length < 2)
 				continue;
 
+			Double tempWeight = Double.parseDouble(termSplit[0]);
 
 			// check the index is less than or equal to zero, 
 			// if true throws Illegal Argument Exception.
-			if (Double.parseDouble(termSplit[0]) <= 0) {
+			if (tempWeight <= 0) {
 				inTerms.close();
 				throw new IllegalArgumentException("Weight of word cannot be less than or equal to zero.");
 			}
@@ -126,7 +111,7 @@ public class BruteAutoComplete implements AutoComplete {
 				}
 
 			// create new instance of Term with the weight and word then add new Term to array list
-			words.add(new Term(Double.parseDouble(termSplit[0]), termSplit[1]));
+			words.add(new Term(tempWeight, termSplit[1]));
 
 		}
 

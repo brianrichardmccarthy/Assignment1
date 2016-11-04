@@ -9,17 +9,20 @@ import java.util.List;
 import java.util.Scanner;
 
 import edu.princeton.cs.introcs.Stopwatch;
-
+import term.Term;
+import interfaces.AutoComplete;
 /**
  * This Class reads in a file from a given String in the Constructor.<br>
- * Sort the content from the file by highest to lowest descending order of occurences.<br>
+ * Sort the content from the file by highest to lowest descending order of
+ * occurences.<br>
  * Porvides three options.
  * <ul>
- * 	<li> Search a specified string for its occurence.</li>
- * 	<li> Search for the best match (linear).</li>
- * 	<li> Search for a list of prefixs (linear).</li>
+ * <li>Search a specified string for its occurence.</li>
+ * <li>Search for the best match (linear).</li>
+ * <li>Search for a list of prefixs (linear).</li>
  * </ul>
  * As outlined in the AutoComplete interface.
+ * 
  * @see AutoComplete
  * @author Brian
  *
@@ -69,10 +72,10 @@ public class QuickAutoComplete implements AutoComplete {
 			inTerms.close();
 			throw new NullPointerException(file + " is empty.");
 		}
-		
+
 		// setup a stop watch for timing
 		Stopwatch stopwatch = new Stopwatch();
-		
+
 		/*
 		 * 1. Read in the next line of the file. 2. Split the line by weight and
 		 * word. 3. Add both to new Term class and add new Term class to
@@ -86,87 +89,161 @@ public class QuickAutoComplete implements AutoComplete {
 			// split the termString with the delims.
 			String[] termSplit = termString.split(delims);
 
-			/*
-			 * This if statement checks for Byte order mark. Prevents an
-			 * exception being thrown
-			 */
-			/*
-			 * if (termSplit[0].equals("﻿")) // termSplit[1] == number,
-			 * termSplit[2] == word addWord(termSplit, 1); else // termSplit[0]
-			 * == number, termSplit[1] == word addWord(termSplit, 0);
-			 */
+			// check if the array does not contain weight and word
+			if (termSplit.length < 2)
+				continue;
 
-			// check that the first index does not contain a byte order mark,
-			// if the array does the set index to 1,
-			// else set the index to 0.
-			addWord(termSplit, (termSplit[0].equals("﻿")) ? 1 : 0);
+			Double tempWeight = Double.parseDouble(termSplit[0]);
+			
+			// check the index is less than or equal to zero,
+			// if true throws Illegal Argument Exception.
+			if (tempWeight <= 0) {
+				inTerms.close();
+				throw new IllegalArgumentException("Weight of word cannot be less than or equal to zero.");
+			}
+
+			/*
+			 * Check if array list is empty, if true add the current contents of the termSplit array to the first index.
+			 * */
+			if (words.isEmpty())
+				words.add(new Term(Double.parseDouble(termSplit[0]), termSplit[1]));
+			/*
+			 * Else sort the array list by it's word.
+			 * Then do a bnary search. If the binary search is less than 0 add the term to the array list.
+			 * Else if the binary search is greater than zero throw illegal argument exception.
+			 * */
+			else {
+				if (Collections.binarySearch(words, new Term(0.0, termSplit[1]), compareWord()) > 0) {
+					inTerms.close();
+					throw new IllegalArgumentException("Duplicate word at index " + words.size());
+				}
+				words.add(new Term(tempWeight, termSplit[1]));
+			}
 
 		}
 
-		// sort the arrayList
-		sort();
+		// sort the arrayList by weight
+		sort(compareWeight());
 
 		// print the time taken to read the file
-		System.out.println("Time taken to read in file: " + stopwatch.elapsedTime());
-		
+		System.out.println("Time taken to read in file: " + stopwatch.elapsedTime() + ", Size: " + words.size());
+
 		// close the scanner
 		inTerms.close();
 
 	}
 
 	/**
-	 * Sort the arrayList by weight, highest to lowest.
+	 * Sort the arrayList by Comparator given as a parameter.
 	 */
-	private void sort() {
-		
+	private void sort(Comparator<Term> sort) {
+
 		// sort the arraylist by weight with the comparator interface
-		Collections.sort(words, new Comparator<Term>() {
+		Collections.sort(words, sort);
+
+	}
+
+	/**
+	 * Compares the List of Terms via weight in highest to lowest order.
+	 * 
+	 * @return (Comparator<Term>)
+	 */
+	private Comparator<Term> compareWeight() {
+		return new Comparator<Term>() {
 
 			public int compare(Term word1, Term word2) {
-				// sorts the words as highest to lowest.
+				// sorts the words by weights as highest to lowest.
 				return word2.getWeight().compareTo(word1.getWeight());
 			}
 
-		});
-		
+		};
 	}
 
 	/**
-	 * Add the word and weight to the arraylist.<br>
-	 * Or throw Illegal Argument Exception.
+	 * Compares the List of Terms via word.<br>
+	 * If the first word starts with the second word or if the first word equals
+	 * the second word The Comparator returns 0. Else it will use the compare to
+	 * ingore case method from Class String<br>
+	 * and return that.
 	 * 
-	 * @param termSplit
-	 *            (String[])
-	 * @param index
-	 *            (int) 1 or 0
-	 * @throws IllegalArgumentException
-	 *             If the weight of the word is less than or equal to zero. Or
-	 *             the word is repeated.
+	 * @return (Comparator<Term>)
 	 */
-	private void addWord(String[] termSplit, int index) throws IllegalArgumentException {
+	private Comparator<Term> compareWord() {
+		return new Comparator<Term>() {
 
-		// check the index is less than or equal to zero, 
-		// if true throws Illegal Argument Exception.
-		if (Double.parseDouble(termSplit[index]) <= 0)
-			throw new IllegalArgumentException("Weight of word cannot be less than or equal to zero.");
+			public int compare(Term word1, Term word2) {
+				if (word1.getWord().startsWith(word2.getWord()) || word1.getWord().equals(word2.getWord()))
+					return 0;
+				return word1.getWord().compareToIgnoreCase(word2.getWord());
+			}
 
-		// check that the word is not already in the array list,
-		// if it is then throws Illegal Argument Exception.
-		for (Term word : words)
-			if (word.getWord().equals(termSplit[index + 1]))
-				throw new IllegalArgumentException("Duplicate word.");
-
-		// create new instance of Term with the weight and word then add new Term to array list
-		words.add(new Term(Double.parseDouble(termSplit[index]), termSplit[index + 1]));
-											  // weight			 // word
-
+		};
 	}
 
 	/**
-	 * Get the Weight of a given string or prefix. (Linear search: best case = 1, worst case = N)
-	 * @param term (String) whole word or substring of a word to be searched to find the weight of.
+	 * Firstly preform binary search to get an index of a String that either equals or starts with the given term.<br>
+	 * Taking that index to be the middle, preform a linear search on both sides (Decrementing and incrementing)<br>
+	 * till it finds the first word that equals or starts with the given term or it reaches the start of the array list.<br>
+	 * And it finds the last word that equals or starts with the given term or it reaches the end of the array list.<br>
+	 * 
+	 * @param term (String) to be searched.
+	 * @return (List<Term>) sublist of Strings equal to or start with the given term, if non found return null.
+	 */
+	private List<Term> binarySearch(String term) {
+		
+		Collections.sort(words, compareWord());
+		
+		// preform binary search to get an index of a String that either equals or starts with the given term
+		int middle = Collections.binarySearch(words, new Term(0.0, term), compareWord());
+		
+		// if an index is found
+		if (middle > 0) {
+			// variables for the start and end
+			int start = middle;
+			
+			/*
+			 * The start - 1 is greater than 0 and start - 1 word starts with the given term.
+			 * Or the middle + 1 is less than the size of the array list and middle + 1 word starts with the given term.
+			 * Increment the start or middle or both.
+			 * */
+			while ((start - 1 > 0 && words.get(start - 1).getWord().startsWith(term))
+					|| (middle + 1 < words.size() && words.get(middle + 1).getWord().startsWith(term))) {
+				// The start - 1 is greater than 0 and start - 1 word starts with the given term.
+				// decrement start
+				if (start - 1 > 0 && words.get(start - 1).getWord().startsWith(term))
+					start--;
+				// the middle + 1 is less than the size of the array list and middle + 1 word starts with the given term.
+				// increment middle
+				if (middle + 1 < words.size() && words.get(middle + 1).getWord().startsWith(term))
+					middle++;
+			}
+			
+			// create a sublist of the words with the start index and end index +1
+			List<Term> subList = words.subList(start, middle + 1);
+			
+			// sort the sublist by weight
+			Collections.sort(subList, compareWeight());
+			
+			// return sublist
+			return subList;
+			
+		}
+		
+		// else return null
+		return null;
+	}
+	
+	
+	/**
+	 * Get the Weight of a given string or prefix. (Binary search + linear
+	 * search)
+	 * 
+	 * @param term
+	 *            (String) whole word or substring of a word to be searched to
+	 *            find the weight of.
 	 * @return (double) weight of term given or 0.0 if no weight found.
-	 * @throws null pointer exception if the given term equals null.
+	 * @throws null
+	 *             pointer exception if the given term equals null.
 	 */
 	public double weightOf(String term) throws NullPointerException {
 
@@ -175,35 +252,34 @@ public class QuickAutoComplete implements AutoComplete {
 		if (term == null)
 			throw new NullPointerException();
 
-		// sort the arrayList
-		sort();
-
 		// setup a stop watch for timing
 		Stopwatch stopwatch = new Stopwatch();
 		
-		/*
-		 * linear search each value in the array list to see if starts with given prefix.
-		 * Best case: 1 (because the word in the first index starts with given prefix). Then return its weight.
-		 * Worst case: N (because the last word is the only match or arraylist contains no word with given prefix). Return the last Terms' weight or 0.0.
-		 * */
-		for (Term word : words)	{// Worst: N Best: 1.
-			if (word.getWord().startsWith(term)) {				// Worst: N Best: 1.
-				System.out.println("Time taken to find weight: " + stopwatch.elapsedTime());
-				return word.getWeight();						// Worst: 0 Best: 1.
-			}
-		}
+		// binary search for the list of words with the prefix
+		List<Term> subList = binarySearch(term);
 		
+		// print the time taken to get the list
 		System.out.println("Time taken to find weight: " + stopwatch.elapsedTime());
-		// return 0.0 if no String starts with the given prefix.
-		return 0.0;
+
+		// sort the sublist by weight
+		Collections.sort(subList, compareWeight());
+		
+		// if the sublist is not equal to null return the weight of the first index of the sublist else return null
+		return (subList != null) ? subList.get(0).getWeight() : 0.0;
 
 	}
 
+
 	/**
-	 * Get the word with the highes weigth and starts with a given prefix. (Linear search: best case = 1, worst case = N)
-	 * @param term (String) whole word or substring of a word to be searched.
-	 * @return (String) the word with the highest weigth and contains the prefix given or returns null.
-	 * @throws null pointer exception if the given term equals null.
+	 * Get the word with the highest weigth and starts with a given prefix.
+	 * (Binary Search + Linear search)
+	 * 
+	 * @param term
+	 *            (String) whole word or substring of a word to be searched.
+	 * @return (String) the word with the highest weigth and contains the prefix
+	 *         given or returns null.
+	 * @throws null
+	 *             pointer exception if the given term equals null.
 	 */
 	public String bestMatch(String prefix) throws NullPointerException {
 
@@ -212,45 +288,45 @@ public class QuickAutoComplete implements AutoComplete {
 		if (prefix == null)
 			throw new NullPointerException();
 
-		// sort the arrayList
-		sort();
-
 		// setup a stop watch for timing
 		Stopwatch stopwatch = new Stopwatch();
 		
-		/*
-		 * linear search each value in the array list to see if starts with given prefix and return the word with highest weight.
-		 * Best case: 1 (because the word in the first index starts with given prefix) and return first word of arraylist.
-		 * Worst case: N (because the last word is the only match or arraylist contains no word with given prefix) return last word in arraylist or return null.
-		 * */
-		for (Term word : words)									// Worst: N Best: 1.
-			if (word.getWord().startsWith(prefix)) {			// Worst: N Best: 1.
-				System.out.println("Time taken to find string: " + stopwatch.elapsedTime());
-				return word.getWord();							// Worst: 0 Best: 1.
-			}
+		// binary search for the list of words with the prefix
+		List<Term> subList = binarySearch(prefix);
+		
+		// print the time taken to get the list
+		System.out.println("Time taken to find weight: " + stopwatch.elapsedTime());
 
-		System.out.println("Time taken to find string: " + stopwatch.elapsedTime());
-		// return null if no String starts with given prefix.
-		return null;
+		// sort the sublist by weight
+		Collections.sort(subList, compareWeight());
+		
+		// if the sublist is not equal to null return the word of the first index of the sublist else return null
+		return (subList != null) ? subList.get(0).getWord() : null;
 
 	}
 
 	/**
-	 * Given a string prefix and a number k.<br> 
+	 * Given a string prefix and a number k.<br>
 	 * Searchs the arraylist for words with the given prefix.<br>
-	 * if the number of words in the arraylist with the prefix given is less than k,<br>
+	 * if the number of words in the arraylist with the prefix given is less
+	 * than k,<br>
 	 * return all words found.<br>
-	 * else if the number of words in the arraylist with the prefix given is greater than k,<br>
+	 * else if the number of words in the arraylist with the prefix given is
+	 * greater than k,<br>
 	 * return a list of size k with the words.<br>
-	 * The highest weight at the first index and going in descending order of weigth.<br>
-	 * Uses linear search.
-	 * <br>		Best  case: k
-	 * <br>		Worst case: N
-	 * @param (String) prefix to be search.
-	 * @param (int) k size of list to be returned.
+	 * The highest weight at the first index and going in descending order of
+	 * weigth.<br>
+	 * Uses binary + linear search. <br>
+	 * 
+	 * @param (String)
+	 *            prefix to be search.
+	 * @param (int)
+	 *            k size of list to be returned.
 	 * @return (Iterable<String>) arraylist of words with the given prefix.
-	 * @throws illegal argument exception if k is less than or equal to zero.
-	 * @throws null pointer exception if prefix equals null.
+	 * @throws illegal
+	 *             argument exception if k is less than or equal to zero.
+	 * @throws null
+	 *             pointer exception if prefix equals null.
 	 */
 	public Iterable<String> matches(String prefix, int k) throws IllegalArgumentException, NullPointerException {
 
@@ -258,41 +334,60 @@ public class QuickAutoComplete implements AutoComplete {
 		// if true throws Null Pointer Exception.
 		if (prefix == null)
 			throw new NullPointerException();
-		
+
 		// check if the given int is less than or equal to zero,
 		// if true throws Illegal Argument Exception.
 		if (k <= 0 || k > words.size())
 			throw new IllegalArgumentException();
 
-		List<String> matches = new ArrayList<String>();
-
-		// sort the arrayList
-		sort();
-
 		// setup a stop watch for timing
 		Stopwatch stopwatch = new Stopwatch();
 		
-		for (Term word : words)									// Worst: N Best: K
-			if (matches.size() == k) {							// Worst: N Best: K
-				System.out.println("Time taken to find top words: " + stopwatch.elapsedTime());
-				return matches;									// Worst: 0 Best: 1
-			}
-			else if (word.getWord().startsWith(prefix))			// Worst: N Best: K
-				matches.add(word.getWord());					// Worst: X < N && K  Best: K
-																// where x is the number of strings found.
-		System.out.println("Time taken to find top words: " + stopwatch.elapsedTime());
-		return matches;
+		// binary search for the list of words with the prefix
+		List<Term> subList = binarySearch(prefix);
+		
+		// print the time taken to get the list
+		System.out.println("Time taken to find weight: " + stopwatch.elapsedTime());
+
+		
+		// the prefix is not found return null
+		if (subList == null)
+			return null;
+
+		// create a list of string to be returned
+		List<String> list = new ArrayList<String>();
+		
+		// sort the sublist by weight
+		Collections.sort(subList, compareWeight());
+
+		// add all the words in terms sublist to string sub list
+		for (Term term : subList)
+			list.add(term.getWord());
+
+		// if the size of the sublist of strings is greater than k return a sublist of this sublist of size k
+		// else return sublist
+		return (list.size() > k) ? list.subList(0, k) : list;
 
 	}
 
 	/**
 	 * Accessor for the array list size.
+	 * 
 	 * @return (int) number of Term classes in the arraylist.
 	 */
 	public int getSize() {
 
 		return words.size();
 
+	}
+
+	/**
+	 * 
+	 */
+	public void printAll() {
+		Collections.sort(words, compareWeight());
+		for (Term word : words)
+			System.out.println(word);
 	}
 
 }
