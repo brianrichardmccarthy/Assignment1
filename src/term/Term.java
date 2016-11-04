@@ -1,4 +1,4 @@
-package bruteAutoComplete;
+package term;
 
 /**
  * This class stores a Double weight of occurence and String word.<br>
