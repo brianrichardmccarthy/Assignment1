@@ -6,7 +6,7 @@ import java.util.Scanner;
 public class Main {
 
 	private Scanner stringInput;
-	private static BruteAutoComplete bruteAutoComplete;
+	private BruteAutoComplete bruteAutoComplete;
 
 	public static void main(String[] args) {
 		new Main();
